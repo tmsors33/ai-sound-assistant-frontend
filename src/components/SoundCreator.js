@@ -380,47 +380,52 @@ const SoundCreator = () => {
         method: 'POST',
         body: formData,
         mode: 'cors',
-        credentials: 'same-origin'
+        credentials: 'include'
       };
       
-      // API 호출
-      const response = await fetch(apiUrl, requestOptions);
-      
-      console.log('API 응답 상태:', response.status, response.statusText);
-      const contentType = response.headers.get('content-type');
-      console.log('응답 Content-Type:', contentType);
-      
-      // 응답 내용 로깅
-      const rawText = await response.text();
-      console.log('응답 원본:', rawText);
-      
-      if (!response.ok) {
-        console.error('API 에러 응답:', rawText);
-        if (response.status === 404) {
-          throw new Error('백엔드 API 주소를 찾을 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-        } else {
-          throw new Error(`API 에러 (${response.status}): ${rawText.substring(0, 100)}`);
-        }
-      }
-      
-      let soundData;
       try {
-        soundData = JSON.parse(rawText);
-      } catch (parseError) {
-        console.error('JSON 파싱 에러:', parseError, 'Raw 응답:', rawText.substring(0, 200));
-        throw new Error(`JSON 파싱 에러: ${parseError.message}`);
+        // API 호출
+        const response = await fetch(apiUrl, requestOptions);
+        
+        console.log('API 응답 상태:', response.status, response.statusText);
+        const contentType = response.headers.get('content-type');
+        console.log('응답 Content-Type:', contentType);
+        
+        // 응답 내용 로깅
+        const rawText = await response.text();
+        console.log('응답 원본:', rawText);
+        
+        if (!response.ok) {
+          console.error('API 에러 응답:', rawText);
+          if (response.status === 404) {
+            throw new Error('백엔드 API 주소를 찾을 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+          } else {
+            throw new Error(`API 에러 (${response.status}): ${response.statusText}`);
+          }
+        }
+        
+        let soundData;
+        try {
+          soundData = JSON.parse(rawText);
+        } catch (parseError) {
+          console.error('JSON 파싱 에러:', parseError, 'Raw 응답:', rawText.substring(0, 200));
+          throw new Error(`JSON 파싱 에러: ${parseError.message}`);
+        }
+        
+        console.log('파싱된 응답 데이터:', soundData);
+        
+        // 생성 결과 설정
+        setGeneratedSound({
+          name: soundData.name,
+          duration: soundData.duration,
+          type: soundData.type,
+          url: soundData.url,
+          previewUrl: soundData.previewUrl
+        });
+      } catch (fetchError) {
+        console.error('Fetch 오류:', fetchError);
+        throw new Error(`백엔드 서버 연결 오류: ${fetchError.message}`);
       }
-      
-      console.log('파싱된 응답 데이터:', soundData);
-      
-      // 생성 결과 설정
-      setGeneratedSound({
-        name: soundData.name,
-        duration: soundData.duration,
-        type: soundData.type,
-        url: soundData.url,
-        previewUrl: soundData.previewUrl
-      });
     } catch (error) {
       console.error('사운드 생성 오류:', error);
       alert('사운드 생성 중 오류가 발생했습니다: ' + error.message);
