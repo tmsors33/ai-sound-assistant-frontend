@@ -1,27 +1,11 @@
 import axios from 'axios';
 
-// API URL 업데이트 - 고정된 백엔드 URL로 변경
-export const BASE_URL = process.env.REACT_APP_API_URL || 'https://aad7-218-239-84-61.ngrok-free.app';
-// 프록시 설정을 위한 중간 처리
+// API URL을 직접 하드코딩으로 설정
+export const BASE_URL = 'https://aad7-218-239-84-61.ngrok-free.app';
+
+// 백엔드 서버 URL을 환경에 따라 결정
 const getApiUrl = () => {
-  // 환경 변수 확인
-  console.log('환경 변수 REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
-  
-  // Vercel 배포 환경에서 접근하는 경우 (고정된 백엔드 URL 사용)
-  if (window.location.href.includes('vercel.app')) {
-    console.log('Vercel 환경 감지, API URL:', `${BASE_URL}/api`);
-    return `${BASE_URL}/api`;
-  }
-  
-  // ngrok URL을 통해 접근하는 경우
-  if (window.location.href.includes('ngrok-free.app')) {
-    const apiBaseUrl = process.env.REACT_APP_API_URL || BASE_URL;
-    console.log('ngrok 환경 감지, API URL:', `${apiBaseUrl}/api`);
-    return `${apiBaseUrl}/api`;
-  }
-  
-  // 로컬에서 접근하는 경우
-  console.log('로컬 환경 감지, API URL:', `${BASE_URL}/api`);
+  console.log('API 베이스 URL:', BASE_URL);
   return `${BASE_URL}/api`;
 };
 
@@ -29,7 +13,6 @@ const API_URL = getApiUrl();
 
 // 디버깅 정보 출력
 console.log('현재 API URL:', API_URL);
-console.log('환경 변수:', process.env.REACT_APP_API_URL);
 console.log('BASE_URL:', BASE_URL);
 console.log('현재 위치:', window.location.href);
 
