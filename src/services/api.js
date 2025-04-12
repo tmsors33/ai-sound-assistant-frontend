@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// API URL을 직접 하드코딩으로 설정
+// API URL을 최신 ngrok URL로 직접 수정
 export const BASE_URL = 'https://aad7-218-239-84-61.ngrok-free.app';
 
 // 백엔드 서버 URL을 환경에 따라 결정
