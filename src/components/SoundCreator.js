@@ -355,80 +355,72 @@ const SoundCreator = () => {
       return;
     }
     
-    // 사용자에게 데모 모드 안내
-    if (window.confirm(
-      '현재 AI 사운드 생성은 데모 모드로 작동합니다.\n\n' +
-      '실제 AI 모델을 사용하려면 백엔드 .env 파일에 다음 API 키를 설정해야 합니다:\n' +
-      '- Replicate API 키 (AudioLDM 모델)\n' +
-      '- Hugging Face API 키 (MusicGen 모델)\n\n' +
-      '계속하시겠습니까?'
-    )) {
-      setIsGenerating(true);
-      setGeneratedSound(null);
+    // 데모 모드 안내 제거하고 바로 AI 사운드 생성 진행
+    setIsGenerating(true);
+    setGeneratedSound(null);
+    
+    try {
+      // API 요청 준비
+      const formData = new FormData();
+      formData.append('description', description);
+      formData.append('soundType', soundType);
+      formData.append('tags', selectedTags.join(','));
       
-      try {
-        // API 요청 준비
-        const formData = new FormData();
-        formData.append('description', description);
-        formData.append('soundType', soundType);
-        formData.append('tags', selectedTags.join(','));
-        
-        if (referenceFile) {
-          formData.append('referenceFile', referenceFile);
-        }
-        
-        const apiUrl = `${BASE_URL}/api/generate-sound`;
-        console.log('API 요청 시작:', apiUrl);
-        console.log('BASE_URL:', BASE_URL);
-        
-        // CORS 옵션 추가
-        const requestOptions = {
-          method: 'POST',
-          body: formData,
-          mode: 'cors',
-          credentials: 'same-origin'
-        };
-        
-        // API 호출
-        const response = await fetch(apiUrl, requestOptions);
-        
-        console.log('API 응답 상태:', response.status, response.statusText);
-        const contentType = response.headers.get('content-type');
-        console.log('응답 Content-Type:', contentType);
-        
-        // 응답 내용 로깅
-        const rawText = await response.text();
-        console.log('응답 원본:', rawText);
-        
-        if (!response.ok) {
-          console.error('API 에러 응답:', rawText);
-          throw new Error(`API 에러 (${response.status}): ${rawText.substring(0, 100)}`);
-        }
-        
-        let soundData;
-        try {
-          soundData = JSON.parse(rawText);
-        } catch (parseError) {
-          console.error('JSON 파싱 에러:', parseError, 'Raw 응답:', rawText.substring(0, 200));
-          throw new Error(`JSON 파싱 에러: ${parseError.message}`);
-        }
-        
-        console.log('파싱된 응답 데이터:', soundData);
-        
-        // 생성 결과 설정
-        setGeneratedSound({
-          name: soundData.name,
-          duration: soundData.duration,
-          type: soundData.type,
-          url: soundData.url,
-          previewUrl: soundData.previewUrl
-        });
-      } catch (error) {
-        console.error('사운드 생성 오류:', error);
-        alert('사운드 생성 중 오류가 발생했습니다: ' + error.message);
-      } finally {
-        setIsGenerating(false);
+      if (referenceFile) {
+        formData.append('referenceFile', referenceFile);
       }
+      
+      const apiUrl = `${BASE_URL}/api/generate-sound`;
+      console.log('API 요청 시작:', apiUrl);
+      console.log('BASE_URL:', BASE_URL);
+      
+      // CORS 옵션 추가
+      const requestOptions = {
+        method: 'POST',
+        body: formData,
+        mode: 'cors',
+        credentials: 'same-origin'
+      };
+      
+      // API 호출
+      const response = await fetch(apiUrl, requestOptions);
+      
+      console.log('API 응답 상태:', response.status, response.statusText);
+      const contentType = response.headers.get('content-type');
+      console.log('응답 Content-Type:', contentType);
+      
+      // 응답 내용 로깅
+      const rawText = await response.text();
+      console.log('응답 원본:', rawText);
+      
+      if (!response.ok) {
+        console.error('API 에러 응답:', rawText);
+        throw new Error(`API 에러 (${response.status}): ${rawText.substring(0, 100)}`);
+      }
+      
+      let soundData;
+      try {
+        soundData = JSON.parse(rawText);
+      } catch (parseError) {
+        console.error('JSON 파싱 에러:', parseError, 'Raw 응답:', rawText.substring(0, 200));
+        throw new Error(`JSON 파싱 에러: ${parseError.message}`);
+      }
+      
+      console.log('파싱된 응답 데이터:', soundData);
+      
+      // 생성 결과 설정
+      setGeneratedSound({
+        name: soundData.name,
+        duration: soundData.duration,
+        type: soundData.type,
+        url: soundData.url,
+        previewUrl: soundData.previewUrl
+      });
+    } catch (error) {
+      console.error('사운드 생성 오류:', error);
+      alert('사운드 생성 중 오류가 발생했습니다: ' + error.message);
+    } finally {
+      setIsGenerating(false);
     }
   };
   
