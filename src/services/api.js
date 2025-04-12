@@ -1,13 +1,13 @@
 import axios from 'axios';
 
-// API URL 업데이트 - 백엔드 URL로 변경
+// API URL 업데이트 - 고정된 백엔드 URL로 변경
 export const BASE_URL = process.env.REACT_APP_API_URL || 'https://aad7-218-239-84-61.ngrok-free.app';
 // 프록시 설정을 위한 중간 처리
 const getApiUrl = () => {
   // 환경 변수 확인
   console.log('환경 변수 REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
   
-  // Vercel 배포 환경에서 접근하는 경우
+  // Vercel 배포 환경에서 접근하는 경우 (고정된 백엔드 URL 사용)
   if (window.location.href.includes('vercel.app')) {
     console.log('Vercel 환경 감지, API URL:', `${BASE_URL}/api`);
     return `${BASE_URL}/api`;

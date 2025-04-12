@@ -370,8 +370,9 @@ const SoundCreator = () => {
         formData.append('referenceFile', referenceFile);
       }
       
+      // 백엔드 API URL 설정 (BASE_URL은 api.js에서 정의됨)
       const apiUrl = `${BASE_URL}/api/generate-sound`;
-      console.log('API 요청 시작:', apiUrl);
+      console.log('AI 사운드 생성 API 요청 시작:', apiUrl);
       console.log('BASE_URL:', BASE_URL);
       
       // CORS 옵션 추가
@@ -395,7 +396,11 @@ const SoundCreator = () => {
       
       if (!response.ok) {
         console.error('API 에러 응답:', rawText);
-        throw new Error(`API 에러 (${response.status}): ${rawText.substring(0, 100)}`);
+        if (response.status === 404) {
+          throw new Error('백엔드 API 주소를 찾을 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+        } else {
+          throw new Error(`API 에러 (${response.status}): ${rawText.substring(0, 100)}`);
+        }
       }
       
       let soundData;
