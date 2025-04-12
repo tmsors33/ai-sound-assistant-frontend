@@ -1,6 +1,17 @@
-import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useState, useRef, useEffect } from 'react';
+import styled, { createGlobalStyle } from 'styled-components';
 import { FaUpload, FaPlay, FaPause, FaDownload } from 'react-icons/fa';
+import { BASE_URL } from '../services/api';
+
+// 글로벌 스타일 추가 (드롭다운 메뉴 스타일 적용)
+const GlobalStyle = createGlobalStyle`
+  select option {
+    background-color: white !important;
+    color: black !important;
+    font-size: 16px !important;
+    padding: 10px !important;
+  }
+`;
 
 const CreatorContainer = styled.div`
   display: flex;
@@ -37,20 +48,59 @@ const Label = styled.label`
   color: #555;
 `;
 
+const CustomSelect = styled.div`
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+`;
+
+const SelectButton = styled.button`
+  width: 100%;
+  padding: 10px 15px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  &:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+  }
+`;
+
+const SelectOptions = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 0 0 4px 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+`;
+
+const Option = styled.div`
+  padding: 10px 15px;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
 const TextInput = styled.input`
   width: 100%;
   padding: 0.7rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 1rem;
-`;
-
-const Select = styled.select`
-  width: 100%;
-  padding: 0.7rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 1rem;
   font-size: 1rem;
 `;
 
@@ -235,8 +285,10 @@ const SoundCreator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedSound, setGeneratedSound] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
   
   const audioRef = useRef(null);
+  const selectRef = useRef(null);
   
   // 사운드 타입 옵션
   const soundTypeOptions = [
@@ -276,6 +328,26 @@ const SoundCreator = () => {
     }
   };
   
+  // 커스텀 선택 요소 외부 클릭 핸들러
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsSelectOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
+  // 선택된 옵션 표시 텍스트
+  const getSelectedOption = () => {
+    const option = soundTypeOptions.find(opt => opt.value === soundType);
+    return option ? option.label : '옵션 선택';
+  };
+  
   // 사운드 생성 핸들러
   const handleGenerateSound = async () => {
     if (!description && !referenceFile && selectedTags.length === 0) {
@@ -283,64 +355,80 @@ const SoundCreator = () => {
       return;
     }
     
-    setIsGenerating(true);
-    setGeneratedSound(null);
-    
-    try {
-      // API 요청 준비
-      const formData = new FormData();
-      formData.append('description', description);
-      formData.append('soundType', soundType);
-      formData.append('tags', selectedTags.join(','));
+    // 사용자에게 데모 모드 안내
+    if (window.confirm(
+      '현재 AI 사운드 생성은 데모 모드로 작동합니다.\n\n' +
+      '실제 AI 모델을 사용하려면 백엔드 .env 파일에 다음 API 키를 설정해야 합니다:\n' +
+      '- Replicate API 키 (AudioLDM 모델)\n' +
+      '- Hugging Face API 키 (MusicGen 모델)\n\n' +
+      '계속하시겠습니까?'
+    )) {
+      setIsGenerating(true);
+      setGeneratedSound(null);
       
-      if (referenceFile) {
-        formData.append('referenceFile', referenceFile);
-      }
-      
-      console.log('API 요청 시작:', 'http://localhost:5002/api/generate-sound');
-      
-      // API 호출
-      const response = await fetch('http://localhost:5002/api/generate-sound', {
-        method: 'POST',
-        body: formData
-      });
-      
-      console.log('API 응답 상태:', response.status, response.statusText);
-      const contentType = response.headers.get('content-type');
-      console.log('응답 Content-Type:', contentType);
-      
-      // 응답 내용 로깅
-      const rawText = await response.text();
-      console.log('응답 원본:', rawText);
-      
-      if (!response.ok) {
-        console.error('API 에러 응답:', rawText);
-        throw new Error(`API 에러 (${response.status}): ${rawText.substring(0, 100)}`);
-      }
-      
-      let soundData;
       try {
-        soundData = JSON.parse(rawText);
-      } catch (parseError) {
-        console.error('JSON 파싱 에러:', parseError, 'Raw 응답:', rawText.substring(0, 200));
-        throw new Error(`JSON 파싱 에러: ${parseError.message}`);
+        // API 요청 준비
+        const formData = new FormData();
+        formData.append('description', description);
+        formData.append('soundType', soundType);
+        formData.append('tags', selectedTags.join(','));
+        
+        if (referenceFile) {
+          formData.append('referenceFile', referenceFile);
+        }
+        
+        const apiUrl = `${BASE_URL}/api/generate-sound`;
+        console.log('API 요청 시작:', apiUrl);
+        console.log('BASE_URL:', BASE_URL);
+        
+        // CORS 옵션 추가
+        const requestOptions = {
+          method: 'POST',
+          body: formData,
+          mode: 'cors',
+          credentials: 'same-origin'
+        };
+        
+        // API 호출
+        const response = await fetch(apiUrl, requestOptions);
+        
+        console.log('API 응답 상태:', response.status, response.statusText);
+        const contentType = response.headers.get('content-type');
+        console.log('응답 Content-Type:', contentType);
+        
+        // 응답 내용 로깅
+        const rawText = await response.text();
+        console.log('응답 원본:', rawText);
+        
+        if (!response.ok) {
+          console.error('API 에러 응답:', rawText);
+          throw new Error(`API 에러 (${response.status}): ${rawText.substring(0, 100)}`);
+        }
+        
+        let soundData;
+        try {
+          soundData = JSON.parse(rawText);
+        } catch (parseError) {
+          console.error('JSON 파싱 에러:', parseError, 'Raw 응답:', rawText.substring(0, 200));
+          throw new Error(`JSON 파싱 에러: ${parseError.message}`);
+        }
+        
+        console.log('파싱된 응답 데이터:', soundData);
+        
+        // 생성 결과 설정
+        setGeneratedSound({
+          name: soundData.name,
+          duration: soundData.duration,
+          type: soundData.type,
+          url: soundData.url,
+          previewUrl: soundData.previewUrl
+        });
+      } catch (error) {
+        console.error('사운드 생성 오류:', error);
+        alert('사운드 생성 중 오류가 발생했습니다: ' + error.message);
+      } finally {
+        setIsGenerating(false);
       }
-      
-      console.log('파싱된 응답 데이터:', soundData);
-      
-      // 생성 결과 설정
-      setGeneratedSound({
-        name: soundData.name,
-        duration: soundData.duration,
-        type: soundData.type,
-        url: soundData.url,
-        previewUrl: soundData.previewUrl
-      });
-    } catch (error) {
-      console.error('사운드 생성 오류:', error);
-      alert('사운드 생성 중 오류가 발생했습니다: ' + error.message);
-    } finally {
-      setIsGenerating(false);
     }
   };
   
@@ -358,7 +446,7 @@ const SoundCreator = () => {
   };
   
   // 오디오 이벤트 핸들러
-  React.useEffect(() => {
+  useEffect(() => {
     const audioElement = audioRef.current;
     if (audioElement) {
       const handleEnded = () => setIsPlaying(false);
@@ -375,6 +463,7 @@ const SoundCreator = () => {
   
   return (
     <CreatorContainer>
+      <GlobalStyle />
       <Title>AI 사운드 제작기</Title>
       
       <FormSection>
@@ -382,18 +471,32 @@ const SoundCreator = () => {
         
         <InputGroup>
           <Label htmlFor="sound-type">사운드 타입</Label>
-          <Select 
-            id="sound-type"
-            value={soundType}
-            onChange={(e) => setSoundType(e.target.value)}
-            disabled={isGenerating}
-          >
-            {soundTypeOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
+          <CustomSelect ref={selectRef}>
+            <SelectButton 
+              type="button" 
+              onClick={() => setIsSelectOpen(!isSelectOpen)}
+              disabled={isGenerating}
+            >
+              {getSelectedOption()}
+              <span>{isSelectOpen ? '▲' : '▼'}</span>
+            </SelectButton>
+            
+            {isSelectOpen && (
+              <SelectOptions>
+                {soundTypeOptions.map(option => (
+                  <Option 
+                    key={option.value} 
+                    onClick={() => {
+                      setSoundType(option.value);
+                      setIsSelectOpen(false);
+                    }}
+                  >
+                    {option.label}
+                  </Option>
+                ))}
+              </SelectOptions>
+            )}
+          </CustomSelect>
         </InputGroup>
         
         <InputGroup>
@@ -506,6 +609,15 @@ const SoundCreator = () => {
         <p>3. 원하는 분위기 태그를 선택합니다 (선택사항)</p>
         <p>4. 비슷한 사운드 파일을 레퍼런스로 업로드합니다 (선택사항)</p>
         <p>5. '사운드 생성하기' 버튼을 클릭하여 AI가 사운드를 생성할 때까지 기다립니다</p>
+        
+        <h3 style={{ marginTop: '1.5rem' }}>AI 모델 설정 방법</h3>
+        <p>실제 AI 모델을 사용하려면 백엔드 서버의 .env 파일에 다음 API 키를 설정하세요:</p>
+        <ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
+          <li><strong>Replicate API</strong>: <a href="https://replicate.com/" target="_blank" rel="noopener noreferrer">replicate.com</a>에서 가입 후 API 키 발급</li>
+          <li><strong>Hugging Face API</strong>: <a href="https://huggingface.co/" target="_blank" rel="noopener noreferrer">huggingface.co</a>에서 가입 후 API 키 발급</li>
+        </ul>
+        <p>API 키 설정 후 백엔드 서버를 재시작하면 실제 AI 모델을 통한 사운드 생성이 가능합니다.</p>
+        <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '1rem' }}>※ 현재는 데모 모드로 작동하여 업로드한 파일이나 샘플 사운드를 기반으로 결과가 제공됩니다.</p>
       </div>
     </CreatorContainer>
   );
