@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://cb10-221-148-104-162.ngrok-free.app/api';
+// API URL 형식 수정 - 환경 변수에 /api가 포함되지 않도록 함
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://96d9-218-239-84-61.ngrok-free.app';
+const API_URL = `${BASE_URL}/api`;
 
 /**
  * 통합 사운드 검색 함수
