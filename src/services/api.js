@@ -3,13 +3,13 @@ import axios from 'axios';
 // API URL을 최신 ngrok URL로 직접 수정
 export const BASE_URL = 'https://aad7-218-239-84-61.ngrok-free.app';
 
-// 백엔드 서버 URL을 환경에 따라 결정
+// 백엔드 서버 URL 설정 (항상 고정 주소 사용)
 const getApiUrl = () => {
   console.log('API 베이스 URL:', BASE_URL);
   return `${BASE_URL}/api`;
 };
 
-const API_URL = getApiUrl();
+export const API_URL = getApiUrl();
 
 // 디버깅 정보 출력
 console.log('현재 API URL:', API_URL);

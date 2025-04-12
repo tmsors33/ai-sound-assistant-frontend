@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { FaUpload, FaPlay, FaPause, FaDownload } from 'react-icons/fa';
-import { BASE_URL } from '../services/api';
+import { API_URL } from '../services/api';
 
 // 글로벌 스타일 추가 (드롭다운 메뉴 스타일 적용)
 const GlobalStyle = createGlobalStyle`
@@ -370,10 +370,9 @@ const SoundCreator = () => {
         formData.append('referenceFile', referenceFile);
       }
       
-      // 백엔드 API URL 설정 (BASE_URL은 api.js에서 정의됨)
-      const apiUrl = `${BASE_URL}/api/generate-sound`;
+      // 백엔드 API URL 설정 (API_URL은 api.js에서 정의됨)
+      const apiUrl = `${API_URL}/generate-sound`;
       console.log('AI 사운드 생성 API 요청 시작:', apiUrl);
-      console.log('BASE_URL:', BASE_URL);
       
       // CORS 옵션 추가
       const requestOptions = {
