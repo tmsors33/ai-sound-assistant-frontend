@@ -374,12 +374,11 @@ const SoundCreator = () => {
       const apiUrl = `${API_URL}/generate-sound`;
       console.log('AI 사운드 생성 API 요청 시작:', apiUrl);
       
-      // CORS 옵션 추가
+      // CORS 옵션 단순화
       const requestOptions = {
         method: 'POST',
         body: formData,
-        mode: 'cors',
-        credentials: 'include'
+        mode: 'cors'
       };
       
       try {
