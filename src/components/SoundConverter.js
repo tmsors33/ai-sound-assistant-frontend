@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { FaUpload, FaDownload, FaExchangeAlt, FaVolumeUp } from 'react-icons/fa';
+import { BASE_URL } from '../services/api';
 
 const ConverterContainer = styled.div`
   display: flex;
@@ -260,19 +261,6 @@ const SoundConverter = () => {
     }
   };
   
-  // 볼륨 값이 변경될 때마다 오디오 요소의 볼륨 업데이트
-  useEffect(() => {
-    // 미리보기 오디오 볼륨 설정
-    if (previewAudioRef.current) {
-      previewAudioRef.current.volume = volume / 100;
-    }
-    
-    // 결과 오디오 볼륨 설정
-    if (resultAudioRef.current) {
-      resultAudioRef.current.volume = volume / 100;
-    }
-  }, [volume]);
-  
   // 파일 변환 핸들러
   const handleConvert = async () => {
     if (!file) return;
@@ -289,7 +277,7 @@ const SoundConverter = () => {
       formData.append('volume', volume.toString());
       formData.append('quality', quality);
       
-      const response = await fetch('http://localhost:5002/api/convert', {
+      const response = await fetch(`${BASE_URL}/api/convert`, {
         method: 'POST',
         body: formData,
       });
@@ -306,7 +294,7 @@ const SoundConverter = () => {
         name: conversionData.convertedName,
         originalName: conversionData.originalName,
         size: conversionData.convertedSize,
-        url: `http://localhost:5002${conversionData.convertedUrl}`,
+        url: `${BASE_URL}${conversionData.convertedUrl}`,
         format: conversionData.format,
         volume: conversionData.volume || volume,
         quality: conversionData.quality || quality,
