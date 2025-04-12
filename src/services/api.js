@@ -4,6 +4,10 @@ import axios from 'axios';
 const BASE_URL = process.env.REACT_APP_API_URL || 'https://96d9-218-239-84-61.ngrok-free.app';
 const API_URL = `${BASE_URL}/api`;
 
+// 디버깅 정보 출력
+console.log('현재 API URL:', API_URL);
+console.log('환경 변수:', process.env.REACT_APP_API_URL);
+
 /**
  * 통합 사운드 검색 함수
  * @param {string} query - 검색어
@@ -21,10 +25,16 @@ export const searchSounds = async (query, filters = {}) => {
     if (format) params.append('format', format);
     if (concept) params.append('concept', concept);
     
-    const response = await axios.get(`${API_URL}/search`, { params });
+    const requestURL = `${API_URL}/search`;
+    console.log('요청 URL:', requestURL);
+    console.log('요청 매개변수:', Object.fromEntries(params));
+    
+    const response = await axios.get(requestURL, { params });
+    console.log('응답 데이터:', response.data);
     return response.data;
   } catch (error) {
     console.error('API 검색 오류:', error);
+    console.error('오류 상세:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
