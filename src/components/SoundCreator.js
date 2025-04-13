@@ -96,13 +96,14 @@ const Option = styled.div`
   }
 `;
 
-const TextInput = styled.input`
-  width: 100%;
-  padding: 0.7rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-`;
+// TextInput은 현재 사용되지 않음
+// const TextInput = styled.input`
+//   width: 100%;
+//   padding: 0.7rem;
+//   border: 1px solid #ddd;
+//   border-radius: 4px;
+//   font-size: 1rem;
+// `;
 
 const Textarea = styled.textarea`
   width: 100%;

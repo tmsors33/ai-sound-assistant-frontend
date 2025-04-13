@@ -1,5 +1,7 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 import styled from 'styled-components';
+// eslint-disable-next-line no-unused-vars
 import { FaPlay, FaPause, FaDownload, FaExternalLinkAlt, FaMusic, FaVolumeMute } from 'react-icons/fa';
 
 const ResultsContainer = styled.div`
