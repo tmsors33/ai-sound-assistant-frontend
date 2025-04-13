@@ -184,8 +184,8 @@ const Button = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${props => props.primary ? '#4a90e2' : '#f4f4f4'};
-  color: ${props => props.primary ? 'white' : '#333'};
+  background-color: ${props => props.$primary ? '#4a90e2' : '#f4f4f4'};
+  color: ${props => props.$primary ? 'white' : '#333'};
   border: none;
   border-radius: 4px;
   padding: 0.8rem 1.5rem;
@@ -193,7 +193,7 @@ const Button = styled.button`
   cursor: pointer;
   
   &:hover {
-    background-color: ${props => props.primary ? '#3a80d2' : '#e4e4e4'};
+    background-color: ${props => props.$primary ? '#3a80d2' : '#e4e4e4'};
   }
   
   &:disabled {
@@ -374,11 +374,11 @@ const SoundCreator = () => {
       const apiUrl = `${API_URL}/generate-sound`;
       console.log('AI 사운드 생성 API 요청 시작:', apiUrl);
       
-      // CORS 옵션 단순화
+      // CORS 옵션 수정 - 단순화
       const requestOptions = {
         method: 'POST',
         body: formData,
-        mode: 'cors'
+        credentials: 'include'
       };
       
       try {
@@ -398,7 +398,7 @@ const SoundCreator = () => {
           if (response.status === 404) {
             throw new Error('백엔드 API 주소를 찾을 수 없습니다. 서버가 실행 중인지 확인해주세요.');
           } else {
-            throw new Error(`API 에러 (${response.status}): ${response.statusText}`);
+            throw new Error(`API 에러 (${response.status}): ${response.statusText} - ${rawText.slice(0, 100)}`);
           }
         }
         
@@ -551,7 +551,7 @@ const SoundCreator = () => {
         
         <ButtonContainer>
           <Button 
-            primary 
+            $primary 
             onClick={handleGenerateSound}
             disabled={isGenerating}
           >

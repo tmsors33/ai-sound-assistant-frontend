@@ -1,9 +1,26 @@
 import axios from 'axios';
 
-// API URL을 최신 ngrok URL로 직접 수정
-export const BASE_URL = 'https://aad7-218-239-84-61.ngrok-free.app';
+// API URL 설정 - 환경 변수 또는 기본값 사용
+const getBackendUrl = () => {
+  // 1. 환경 변수에서 URL 확인
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // 2. 현재 환경에 따라 URL 결정
+  if (process.env.NODE_ENV === 'production') {
+    // Vercel 배포 환경인 경우 백엔드 URL 사용
+    return 'https://9d79-218-239-84-61.ngrok-free.app';
+  }
+  
+  // 3. 개발 환경인 경우 로컬 URL 사용
+  return 'http://localhost:5001';
+};
 
-// 백엔드 서버 URL 설정 (항상 고정 주소 사용)
+// 백엔드 URL 설정
+export const BASE_URL = getBackendUrl();
+
+// 백엔드 서버 URL 설정
 const getApiUrl = () => {
   console.log('API 베이스 URL:', BASE_URL);
   return `${BASE_URL}/api`;

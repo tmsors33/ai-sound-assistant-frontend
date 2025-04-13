@@ -153,22 +153,11 @@ const ActionButton = styled.a`
     margin-right: 0.3rem;
   }
   
-  &.primary {
-    background-color: #4a90e2;
-    color: white;
-    
-    &:hover {
-      background-color: #3a80d2;
-    }
-  }
+  background-color: ${props => props.$primary ? '#4a90e2' : '#f0f0f0'};
+  color: ${props => props.$primary ? 'white' : '#333'};
   
-  &.secondary {
-    background-color: #f0f0f0;
-    color: #333;
-    
-    &:hover {
-      background-color: #e0e0e0;
-    }
+  &:hover {
+    background-color: ${props => props.$primary ? '#3a80d2' : '#e0e0e0'};
   }
 `;
 
@@ -361,7 +350,7 @@ const ResultsList = ({ results }) => {
                         href={item.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="primary"
+                        $primary={true}
                       >
                         <FaExternalLinkAlt size={14} /> 방문
                       </ActionButton>
@@ -371,7 +360,7 @@ const ResultsList = ({ results }) => {
                           href={item.download} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="secondary"
+                          $primary={false}
                         >
                           <FaDownload size={14} /> 다운로드
                         </ActionButton>

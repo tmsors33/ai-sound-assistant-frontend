@@ -280,6 +280,7 @@ const SoundConverter = () => {
       const response = await fetch(`${BASE_URL}/api/convert`, {
         method: 'POST',
         body: formData,
+        credentials: 'include'
       });
       
       if (!response.ok) {

@@ -39,9 +39,9 @@ const TabContainer = styled.div`
 const Tab = styled.div`
   padding: 1rem 2rem;
   font-size: 1.1rem;
-  font-weight: ${props => props.active ? 'bold' : 'normal'};
-  color: ${props => props.active ? '#4a90e2' : '#666'};
-  border-bottom: ${props => props.active ? '3px solid #4a90e2' : 'none'};
+  font-weight: ${props => props.$active ? 'bold' : 'normal'};
+  color: ${props => props.$active ? '#4a90e2' : '#666'};
+  border-bottom: ${props => props.$active ? '3px solid #4a90e2' : 'none'};
   cursor: pointer;
   margin-right: 1rem;
   transition: all 0.3s;
@@ -158,7 +158,7 @@ function App() {
         {Object.values(TABS).map(tab => (
           <Tab 
             key={tab} 
-            active={activeTab === tab} 
+            $active={activeTab === tab} 
             onClick={() => setActiveTab(tab)}
           >
             {tab}
